@@ -1,6 +1,6 @@
 ## Hello Nelo team!:
 
-Here is your Pokedex you do not need to do any special to run on ios on Android
+Here is your Pokedex you do not need to do anything special to run on ios on Android
 
 # Getting Started
 
