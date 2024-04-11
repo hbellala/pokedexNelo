@@ -1,21 +1,21 @@
 export type Pokemon = {
-  name: string
-  url: string
-}
+  name: string;
+  url: string;
+};
 
 export type PokemonType = {
-  slot: number
+  slot: number;
   type: {
-    name: string
-    url: string
-  }
-}
+    name: string;
+    url: string;
+  };
+};
 
 export type PokemonAbility = {
-  slot: number
-  is_hidden: boolean
+  slot: number;
+  is_hidden: boolean;
   ability: {
-    name: string
-    url: string
-  }
-}
+    name: string;
+    url: string;
+  };
+};

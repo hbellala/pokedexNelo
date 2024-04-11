@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, {useState, useMemo} from 'react';
 import {
   SafeAreaView,
   StyleSheet,
@@ -8,28 +8,28 @@ import {
   Pressable,
   ActivityIndicator,
 } from 'react-native';
-import { useNavigation } from '@react-navigation/native';
-import { Card, TextInput, Text } from 'react-native-paper';
-import { useInfiniteQuery } from '@tanstack/react-query'
-import { Pokemon } from '../utils/types';
-import { StackNavigation } from '../utils/navigation';
-import { fetchPokemons } from '../services';
+import {useNavigation} from '@react-navigation/native';
+import {Card, TextInput, Text} from 'react-native-paper';
+import {useInfiniteQuery} from '@tanstack/react-query';
+import {Pokemon} from '../utils/types';
+import {StackNavigation} from '../utils/navigation';
+import {fetchPokemon} from '../services';
 
 function HomeScreen() {
   const navigation = useNavigation<StackNavigation>();
   const [searchKeyword, setSearchKeyword] = useState<string>('');
 
-  const { data, error, isPending, isError, fetchNextPage, hasNextPage } =
+  const {data, error, isPending, isError, fetchNextPage, hasNextPage} =
     useInfiniteQuery({
-      queryKey: ["load-pokemons"],
+      queryKey: ['load-pokemons'],
       initialPageParam: 1,
-      queryFn: ({ pageParam }) => fetchPokemons(pageParam),
+      queryFn: ({pageParam}) => fetchPokemon(pageParam),
       getNextPageParam: (lastPage, allPages) => {
         return lastPage.length ? allPages.length + 1 : undefined;
       },
     });
 
-  const pokemons = useMemo(() => {
+  const pokemon = useMemo(() => {
     return data?.pages.reduce((acc, page) => {
       return [...acc, ...page];
     }, []);
@@ -40,32 +40,37 @@ function HomeScreen() {
     return (
       <Card style={styles.card}>
         <Card.Content>
-          <Pressable style={styles.item} onPress={() => navigation.navigate('Detail', {pokemonId, pokemonName: item.name})}>
+          <Pressable
+            style={styles.item}
+            onPress={() =>
+              navigation.navigate('Detail', {
+                pokemonId,
+                pokemonName: item.name.toLocaleUpperCase(),
+              })
+            }>
             <Image
-              style={{width: 80, height: 80}}
-              source={{uri: `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${pokemonId}.png`}}
+              style={{width: 80, height: 80, marginRight: 12}}
+              source={{
+                uri: `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${pokemonId}.png`,
+              }}
             />
             <View style={{flex: 1}}>
-              <View style={{...styles.wrap, alignItems: 'center'}}>
-                <Text variant="bodyLarge">Name: </Text>
-                <Text variant="titleMedium">{item.name}</Text>
-              </View>
-              <View style={{...styles.wrap}}>
-                <Text variant="bodyLarge">Link: </Text>
-                <Text variant="titleMedium">{item.url}</Text>
-              </View>
+              <Text style={styles.pokemonName} variant="titleMedium">
+                {item.name}
+              </Text>
+              <Text variant="labelMedium">N˚{pokemonId}</Text>
             </View>
           </Pressable>
         </Card.Content>
       </Card>
-    )
+    );
   };
 
   return (
     <SafeAreaView style={styles.container}>
-      <Text style={styles.title}>Pokemons</Text>
+      <Text style={styles.title}>Pokedex</Text>
       {isPending ? (
-        <ActivityIndicator style={{ marginVertical: 20 }} size={'large'} />
+        <ActivityIndicator style={{marginVertical: 20}} size={'large'} />
       ) : isError ? (
         <Text>Error: {error.message}</Text>
       ) : (
@@ -78,12 +83,22 @@ function HomeScreen() {
             autoCorrect={false}
           />
           <FlatList
-            data={pokemons.filter((p: Pokemon) => p.name.includes(searchKeyword)) as Pokemon[]}
+            data={
+              pokemon.filter((p: Pokemon) =>
+                p.name.includes(searchKeyword),
+              ) as Pokemon[]
+            }
             renderItem={({item}: {item: Pokemon}) => <Item item={item} />}
             keyExtractor={item => item.name}
-            onEndReached={() => !searchKeyword && hasNextPage && fetchNextPage()}
+            onEndReached={() =>
+              !searchKeyword && hasNextPage && fetchNextPage()
+            }
             // onEndReachedThreshold={0.8}
-            ListFooterComponent={(!searchKeyword && hasNextPage) ? <ActivityIndicator size={'small'} /> : null}
+            ListFooterComponent={
+              !searchKeyword && hasNextPage ? (
+                <ActivityIndicator size={'small'} />
+              ) : null
+            }
           />
         </>
       )}
@@ -93,7 +108,7 @@ function HomeScreen() {
 
 const styles = StyleSheet.create({
   container: {
-    flex: 1
+    flex: 1,
   },
   title: {
     textAlign: 'center',
@@ -107,9 +122,9 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
   },
-  wrap: {
-    flex: 1,
-    flexDirection: 'row',
+  pokemonName: {
+    textTransform: 'capitalize',
+    marginBottom: 5,
   },
 });
 
